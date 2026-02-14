@@ -112,12 +112,7 @@ This project implements role-based workflows, campaign management, asynchronous 
 - Vue Router for SPA navigation  
 - Event handling (`@click`, `@submit`) for user actions  
 
----
 
-## Author
-
-**G Hamsini**  
-Registration No: 22F3000767  
 
 ---
 
