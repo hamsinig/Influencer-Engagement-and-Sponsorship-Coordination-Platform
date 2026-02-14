@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sponsor Campaigns</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap">
+    <style>
+       
+       body {
+            font-family: 'Noto Serif', serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #343a40;
+        }
+        .navbar-brand, .nav-link {
+            color: #ffffff !important;
+        }
+       
+        .modal-header, .modal-footer {
+            background-color: #343a40;
+            color: #ffffff;
+        }
+        /* For vertical stacking */
+/* General Button Styles */
+.custom-btn {
+    font-size: 14px;
+    padding: 5px 5px;
+    margin: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    border: 2px solid transparent; /* Default border */
+    border-radius: 8px; /* Default rounded corners */
+    cursor: pointer;
+}
+
+.fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .table-container {
+            margin-left:100px;
+            animation: fadeIn 1s ease-out;
+            margin-top: 20px;
+           
+        }
+        .table-container table {
+            margin-left:100px;
+            width: 100%;
+            width:1200px;
+           
+        }
+/* Background color with gradient */
+.custom-btn-gradient {
+    background: linear-gradient(45deg, #ff6f61, #ff9a8b);
+    background-color: #343a40;
+    border: 2px solid transparent;
+}
+
+.custom-btn-gradient:hover {
+    background: linear-gradient(45deg, #ff9a8b, #ff6f61);
+}
+
+/* Edit button */
+.custom-btn-edit {
+    background-color: #f39c12;
+    color: white;
+    border-color: #f39c12;
+}
+
+.custom-btn-edit:hover {
+    background-color: #e67e22;
+    border-color: #e67e22;
+    transform: scale(1.1); /* Slightly increase size on hover */
+}
+
+/* Delete button */
+.custom-btn-delete {
+    background-color: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+}
+
+.custom-btn-delete:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+}
+
+/* Accept button */
+.custom-btn-accept {
+    background-color: #2ecc71;
+    color: white;
+    border-color: #2ecc71;
+}
+
+.custom-btn-accept:hover {
+    background-color: #27ae60;
+    border-color: #27ae60;
+    transform: scale(1.1);
+}
+
+/* Reject button */
+.custom-btn-reject {
+    background-color: #95a5a6;
+    color: white;
+    border-color: #95a5a6;
+}
+
+.custom-btn-reject:hover {
+    background-color: #7f8c8d;
+    border-color: #7f8c8d;
+    transform: scale(1.1);
+}
+
+/* Disabled Button */
+.custom-btn-disabled {
+    background-color: #BDC3C7;
+    color: white;
+    cursor: not-allowed;
+    border-color: #BDC3C7;
+}
+
+.custom-btn-disabled:hover {
+    background-color: #BDC3C7;
+}
+
+/* Button with Border */
+.custom-btn-bordered {
+    background-color: transparent;
+    color: #3498db;
+    border: 2px solid #3498db;
+}
+
+.custom-btn-bordered:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+/* Shadow Effect */
+.custom-btn-shadow {
+    background-color: #f39c12;
+    color: white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* subtle shadow */
+}
+
+.custom-btn-shadow:hover {
+    background-color: #e67e22;
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.2); /* Larger shadow */
+}
+
+/* Spinning Animation */
+.custom-btn-spin {
+    background-color: #3498db;
+    color: white;
+    position: relative;
+}
+
+.custom-btn-spin:active {
+    animation: spin 0.5s ease-in-out;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Button Container */
+.button-container {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+        .no-campaigns {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 50vh;
+            text-align: center;
+        }
+        .no-campaigns p {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .no-campaigns button {
+            font-size: 1rem;
+            padding: 10px 20px;
+        }
+        .edit-btn {
+            cursor: pointer;
+            color: #e0e5ea;
+            border: none;
+            margin-right:10px;
+            margin-bottom:10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <a class="navbar-brand" href="#">Sponsor Dashboard</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" href="/sponsor_dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/sponsor_search">Search</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/sponsor_adrequests">Ad Requests</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/sponsor_campaigns">Campaigns</a></li>
+                    
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sponsor_profile">Profile</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="content">
+            <h1 class="mt-4" style="margin-left: 200px;">Campaigns</h1>
+
+            <div class="table-container">
+                <table class="table table-striped" v-if="campaigns.length">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Campaign Name</th>
+                            <th>Description</th>
+                            <th>Visibility</th>
+                            <th>Budget</th>
+                            <th>Goals</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(campaign, index) in campaigns" :key="campaign.id">
+                            <td>{{ index + 1 }}</td>
+                            <td>{{ campaign.name }}</td>
+                            <td>{{ campaign.description }}</td>
+                            <td>{{ campaign.visibility }}</td>
+                            <td>{{ campaign.budget }}</td>
+                            <td>{{ campaign.goals }}</td>
+                            <td>{{ campaign.start_date }}</td>
+                            <td>{{ campaign.end_date }}</td>
+                            <td>
+                                <button class="btn btn-secondary edit-btn" @click.prevent="showModal(campaign)">Edit</button>
+                                <button class="btn btn-secondary edit-btn" @click="openDeleteModal(campaign.id)">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div v-else class="no-campaigns">
+                    <p>No campaigns available.</p>
+                    <button class="btn btn-primary" @click="showAddCampaignModal">Add Campaign</button>
+                </div>
+            </div>
+            <button class="btn btn-secondary add-campaign-btn" v-if="campaigns.length" @click="showAddCampaignModal" style="margin-left: 200px;">
+                Add Another Campaign
+            </button>
+        </div>
+
+        <!-- Add/Edit Campaign Modal -->
+        <div class="modal fade" id="addCampaignModal" tabindex="-1" aria-labelledby="addCampaignModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addCampaignModalLabel">{{ isEditMode ? 'Edit Campaign' : 'Add Campaign' }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form @submit.prevent="saveCampaign">
+                            <div class="form-group">
+                                <label for="campaignName">Campaign Name</label>
+                                <input type="text" class="form-control" id="campaignName" v-model="currentCampaign.name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea class="form-control" id="description" v-model="currentCampaign.description" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="startDate">Start Date</label>
+                                <input type="date" class="form-control" id="startDate" v-model="currentCampaign.start_date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="endDate">End Date</label>
+                                <input type="date" class="form-control" id="endDate" v-model="currentCampaign.end_date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="budget">Budget</label>
+                                <input type="number" class="form-control" id="budget" v-model="currentCampaign.budget" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="visibility">Visibility</label>
+                                <select class="form-control" id="visibility" v-model="currentCampaign.visibility" required>
+                                    <option value="public">Public</option>
+                                    <option value="private">Private</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="goals">Goals</label>
+                                <textarea class="form-control" id="goals" v-model="currentCampaign.goals" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Update Campaign' : 'Save Campaign' }}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this campaign?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteBtn"  @click="deleteCampaign">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.4.31/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    campaigns: [], // Initialize campaigns as an empty array
+                    currentCampaign: {},
+                    isEditMode: false,
+                    campaignToDelete: null
+                };
+            },
+            created() {
+                this.fetchCampaigns();
+            },
+            methods: {
+                fetchCampaigns() {
+                    axios.get('/api/sponsor_campaigns')
+                        .then(response => {
+                            this.campaigns = response.data.campaigns;
+                            console.log(response.data.campaigns);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching campaigns:', error);
+                        });
+                },
+                showModal(campaign) {
+                    this.currentCampaign = { ...campaign }; // Create a copy for editing
+                    this.isEditMode = true;
+                    $('#addCampaignModal').modal('show');
+                },
+                showAddCampaignModal() {
+                    this.currentCampaign = {}; // Reset currentCampaign for adding new campaign
+                    this.isEditMode = false;
+                    $('#addCampaignModal').modal('show');
+                },
+                saveCampaign() {
+                    if (this.isEditMode) {
+                        // Update existing campaign
+                        axios.put(`/api/campaign/${this.currentCampaign.id}`, this.currentCampaign)
+                            .then(response => {
+                                console.log('Campaign updated:', response.data);
+                                this.fetchCampaigns();
+                                $('#addCampaignModal').modal('hide');
+                            })
+                            .catch(error => {
+                                console.error('Error updating campaign:', error);
+                            });
+                    } else {
+                        // Add new campaign
+                        axios.post('/api/campaigns', this.currentCampaign)
+                            .then(response => {
+                                console.log('Campaign added:', response.data);
+                                this.fetchCampaigns();
+                                $('#addCampaignModal').modal('hide');
+                            })
+                            .catch(error => {
+                                console.error('Error adding campaign:', error);
+                            });
+                    }
+                },
+                openDeleteModal(campaignId) {
+                    this.campaignToDelete = campaignId;
+                    $('#deleteModal').modal('show');
+                },
+                deleteCampaign() {
+                    if (!this.campaignToDelete) return;
+    
+                    axios.delete(`/api/campaign/${this.campaignToDelete}`)
+                        .then(response => {
+                            console.log(response.data.message);
+                            this.campaigns = this.campaigns.filter(campaign => campaign.id !== this.campaignToDelete);
+                            $('#deleteModal').modal('hide');
+                        })
+                        .catch(error => {
+                            console.error('Error deleting campaign:', error);
+                        });
+                }
+            }
+        });
+    
+        app.mount('#app');
+    </script>
+    
+    
+</body>
+</html>
+
+

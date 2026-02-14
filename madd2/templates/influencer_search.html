@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influencer Search</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap">
+    <style>
+        .alert-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+            padding: 1rem;
+        }
+        .content {
+            padding: 20px;
+        }
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .edit-btn {
+            margin-top: -2px;
+        }
+        body {
+            font-family: 'Noto Serif', serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #343a40;
+            animation: fadeIn 1s ease-out;
+        }
+        .navbar-brand, .nav-link {
+            color: #ffffff !important;
+        }
+        .search-container {
+            animation: fadeIn 1s ease-out;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            margin-top: 40px; /* Add this line to move it down */
+        }
+        .no-results {
+            font-size: 1.2em;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="alert-container" id="alert-container"></div>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">Influencer Profile</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link" href="/influencer_dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/influencer_search">Search</a></li>
+                <li class="nav-item"><a class="nav-link" href="/influencer_adrequest">Ad Requests</a></li>
+                <li class="nav-item"><a class="nav-link" href="/influencer_campaigns">Campaigns</a></li>
+                <li class="nav-item"><a class="nav-link" href="/influencer_profile">Profile</a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="search-container">
+            <input type="text" id="searchInput" class="form-control search-bar" placeholder="Search...">
+            <div class="btn-group">
+                <button id="btnSponsors" class="btn btn-primary">Sponsors</button>
+                <button id="btnCampaign" class="btn btn-primary">Campaign</button>
+                <button id="btnAdRequest" class="btn btn-primary">AdRequest</button>
+                <button id="btnReset" class="btn btn-secondary">Reset</button>
+            </div>
+        </div>
+
+        <div id="resultsSponsors" class="results-section" style="display: none;">
+            <h4>Sponsors</h4>
+            <ul id="sponsorsList" class="list-group"></ul>
+            <div id="noResultsSponsors" class="no-results" style="display: none;">No sponsors found </div>
+        </div>
+
+        <div id="resultsCampaigns" class="results-section" style="display: none;">
+            <h4>Campaigns</h4>
+            <ul id="campaignsList" class="list-group"></ul>
+            <div id="noResultsCampaigns" class="no-results" style="display: none;">No campaigns found </div>
+        </div>
+
+        <div id="resultsAdRequests" class="results-section" style="display: none;">
+            <h4>Ad Requests</h4>
+            <ul id="adRequestsList" class="list-group"></ul>
+            <div id="noResultsAdRequests" class="no-results" style="display: none;">No ad requests found </div>
+        </div>
+
+        <!-- Modal for displaying details -->
+        <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle">Details</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="modalBody">
+                        <!-- Details will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script> <!-- Full jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const btnSponsors = document.getElementById('btnSponsors');
+        const btnCampaign = document.getElementById('btnCampaign');
+        const btnAdRequest = document.getElementById('btnAdRequest');
+        const btnReset = document.getElementById('btnReset');
+        const resultsSponsors = document.getElementById('resultsSponsors');
+        const resultsCampaigns = document.getElementById('resultsCampaigns');
+        const resultsAdRequests = document.getElementById('resultsAdRequests');
+        const sponsorsList = document.getElementById('sponsorsList');
+        const campaignsList = document.getElementById('campaignsList');
+        const adRequestsList = document.getElementById('adRequestsList');
+        const noResultsSponsors = document.getElementById('noResultsSponsors');
+        const noResultsCampaigns = document.getElementById('noResultsCampaigns');
+        const noResultsAdRequests = document.getElementById('noResultsAdRequests');
+    
+        let activeSearchType = '';
+    
+        btnSponsors.addEventListener('click', () => {
+            activeSearchType = 'sponsor';
+            searchItems();
+        });
+    
+        btnCampaign.addEventListener('click', () => {
+            activeSearchType = 'campaign';
+            searchItems();
+        });
+    
+        btnAdRequest.addEventListener('click', () => {
+            activeSearchType = 'adrequest';
+            searchItems();
+        });
+    
+        btnReset.addEventListener('click', () => {
+            activeSearchType = '';
+            searchInput.value = '';
+            resultsSponsors.style.display = 'none';
+            resultsCampaigns.style.display = 'none';
+            resultsAdRequests.style.display = 'none';
+            btnSponsors.classList.remove('active');
+            btnCampaign.classList.remove('active');
+            btnAdRequest.classList.remove('active');
+        });
+    
+        searchInput.addEventListener('input', () => {
+            if (activeSearchType) {
+                searchItems();
+            }
+        });
+    
+        function searchItems() {
+            const query = searchInput.value.trim();
+            if (query === '') return;
+    
+            axios.get(`/api/influencer_search/${activeSearchType}`, {
+                params: { query: query }
+            })
+            .then(response => {
+                const data = response.data;
+                if (activeSearchType === 'sponsor') {
+                    renderResults(sponsorsList, data, noResultsSponsors);
+                    resultsSponsors.style.display = 'block';
+                    resultsCampaigns.style.display = 'none';
+                    resultsAdRequests.style.display = 'none';
+                } else if (activeSearchType === 'campaign') {
+                    renderResults(campaignsList, data, noResultsCampaigns);
+                    resultsSponsors.style.display = 'none';
+                    resultsCampaigns.style.display = 'block';
+                    resultsAdRequests.style.display = 'none';
+                } else if (activeSearchType === 'adrequest') {
+                    renderResults(adRequestsList, data, noResultsAdRequests);
+                    resultsSponsors.style.display = 'none';
+                    resultsCampaigns.style.display = 'none';
+                    resultsAdRequests.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert('An error occurred while searching. Please try again.');
+            });
+        }
+    
+        function showSponsorDetails(sponsor) {
+    document.getElementById('modalTitle').textContent = sponsor.name;
+    document.getElementById('modalBody').innerHTML = `
+    <p><strong>Name:</strong> ${sponsor.name}</p>
+        <p><strong>Industry:</strong> ${sponsor.industry}</p>
+       
+        
+    `;
+    $('#detailsModal').modal('show');
+}
+
+function showCampaignDetails(campaign) {
+    document.getElementById('modalTitle').textContent = campaign.campaign_name;
+    document.getElementById('modalBody').innerHTML = `
+        <p><strong>Budget:</strong> ${campaign.budget}</p>
+        <p><strong>Start Date:</strong> ${campaign.start_date}</p>
+        <p><strong>End Date:</strong> ${campaign.end_date}</p>
+        <p><strong>Description:</strong> ${campaign.description}</p>
+        <p><strong>Goals:</strong> ${campaign.goals}</p>
+        <p><strong>Ad Requests:</strong></p>
+        <ul>
+            ${campaign.ad_requests.map(req => `<li>${req.payment_amount} -${req.messages}- ${req.status}</li>`).join('')}
+        </ul>
+    `;
+    $('#detailsModal').modal('show');
+}
+
+function showAdRequestDetails(adRequest) {
+    document.getElementById('modalTitle').textContent = adRequest.campaign_name;
+    document.getElementById('modalBody').innerHTML = `
+        <p><strong>Influencer:</strong> ${adRequest.influencer_name}</p>
+        <p><strong>Campaign:</strong> ${adRequest.campaign_name}</p>
+        <p><strong>Payment Amount:</strong> ${adRequest.payment_amount}</p>
+        <p><strong>Status:</strong> ${adRequest.status}</p>
+        <p><strong>Requirements:</strong> ${adRequest.requirements}</p>
+    `;
+    $('#detailsModal').modal('show');
+}
+function renderResults(listElement, items) {
+    listElement.innerHTML = '';  // Clear the list first
+
+    // Check if there are no items
+    if (items.length === 0) {
+        const noResultsMessage = document.createElement('li');
+        noResultsMessage.className = 'list-group-item text-center';
+        noResultsMessage.textContent = 'No results found';
+        listElement.appendChild(noResultsMessage);
+    } else {
+        // Loop through the items and create list elements
+        items.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            
+            const itemName = document.createElement('span');
+            itemName.textContent = item.name || item.title || item.campaign_name; // Adjust based on your data structure
+
+            const viewButton = document.createElement('button');
+            viewButton.className = 'btn btn-info btn-sm';
+            viewButton.textContent = 'View';
+            viewButton.addEventListener('click', () => {
+                if (activeSearchType === 'sponsor') {
+                    showSponsorDetails(item);
+                } else if (activeSearchType === 'campaign') {
+                    console.log("Campaign details:", item);
+                    showCampaignDetails(item);
+                } else if (activeSearchType === 'adrequest') {
+                    showAdRequestDetails(item);
+                }
+            });
+
+            li.appendChild(itemName);
+            li.appendChild(viewButton);
+            listElement.appendChild(li);
+        });
+    }
+}
+
+    </script>
+</body>
+</html>

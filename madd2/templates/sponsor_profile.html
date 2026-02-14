@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sponsor Profile</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap">
+    <style>
+        body {
+            font-family: 'Noto Serif', serif;
+            background-color: #f8f9fa;
+            opacity: 0; /* Start with the page hidden */
+            animation: fadeIn 0.8s ease-in-out forwards; /* Fade in the page */
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1; /* End with the page fully visible */
+            }
+        }
+
+        .alert-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+            padding: 1rem;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .edit-btn {
+            margin-top: -2px;
+        }
+
+        .navbar {
+            background-color: #343a40;
+        }
+
+        .navbar-brand,
+        .nav-link {
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Navbar -->
+        <div class="alert-container" id="alert-container"></div>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <a class="navbar-brand" href="#">Sponsor Profile</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" href="/sponsor_dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/sponsor_search">Search</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/sponsor_campaigns">Campaigns</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/sponsor_adrequests">Ad Requests</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/sponsor_profile">Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Profile Section -->
+        <div class="container mt-5">
+            <h2>Sponsor Profile</h2>
+            <div class="card">
+                <div class="card-body">
+                    <form id="profileForm">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" v-model="sponsor.name" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="industry">Industry</label>
+                            <input type="text" class="form-control" id="industry" v-model="sponsor.industry" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="budget">Budget</label>
+                            <input type="text" class="form-control" id="budget" v-model="sponsor.budget" readonly>
+                        </div>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Profile Modal -->
+        <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editProfileForm">
+                            <div class="form-group">
+                                <label for="editName">Name</label>
+                                <input type="text" class="form-control" id="editName" v-model="sponsor.name">
+                            </div>
+                            <div class="form-group">
+                                <label for="editIndustry">Industry</label>
+                                <input type="text" class="form-control" id="editIndustry" v-model="sponsor.industry">
+                            </div>
+                            <div class="form-group">
+                                <label for="editBudget">Budget</label>
+                                <input type="text" class="form-control" id="editBudget" v-model="sponsor.budget">
+                            </div>
+                            <button type="button" class="btn btn-success" @click="saveProfile">Save</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include VueJS -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- Include Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Include Bootstrap JS and Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                sponsor: {
+                    name: '',
+                    industry: '',
+                    budget: ''
+                }
+            },
+            created() {
+                this.fetchSponsorData();
+            },
+            methods: {
+                fetchSponsorData() {
+                    axios.get('/api/sponsor')
+                        .then(response => {
+                            this.sponsor = response.data;
+                        })
+                        .catch(error => {
+                            console.error('There was an error fetching the sponsor data!', error);
+                        });
+                },
+                async saveProfile() {
+                    try {
+                        const formData = new URLSearchParams();
+                        formData.append('name', this.sponsor.name);
+                        formData.append('industry', this.sponsor.industry);
+                        formData.append('budget', this.sponsor.budget);
+
+                        const response = await axios.post('/api/saveProfile', formData, {
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                        });
+
+                        this.showAlert('Profile updated successfully!', 'success');
+                        $('#editProfileModal').modal('hide');
+                        this.fetchSponsorData();
+                    } catch (error) {
+                        this.showAlert('Failed to update profile. Please try again.', 'danger');
+                        console.error('There was an error saving the profile!', error);
+                    }
+                },
+                showAlert(message, type) {
+                    const alertContainer = document.getElementById('alert-container');
+                    const alert = document.createElement('div');
+                    alert.className = `alert alert-${type} alert-dismissible fade show`;
+                    alert.role = 'alert';
+                    alert.innerHTML = `${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+                    alertContainer.appendChild(alert);
+
+                    setTimeout(() => {
+                        alert.classList.remove('show');
+                        alert.classList.add('fade');
+                        setTimeout(() => alert.remove(), 150);
+                    }, 3000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

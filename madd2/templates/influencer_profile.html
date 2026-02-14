@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influencer Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap">
+    <style>
+        .alert-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+            padding: 1rem;
+        }
+        .card {
+            width: 500px; /* Adjust the width here */
+            margin: 0 auto; /* Center the card horizontally */
+        }
+        .content {
+            padding: 20px;
+            animation: fadeIn 1s ease-out;
+        }
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        body {
+            font-family: 'Noto Serif', serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #343a40;
+            animation: fadeIn 1s ease-out;
+        }
+        .navbar-brand, .nav-link {
+            color: #ffffff !important;
+        }
+        .welcome-text {
+        margin-top:60px;
+        animation: fadeIn 1s ease-out;
+        margin-left:380px;
+    }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="alert-container" id="alert-container"></div>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <a class="navbar-brand" href="#">Influencer Profile</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" href="/influencer_dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/influencer_profile">Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/influencer_adrequest">Ad Requests</a></li>
+		 <li class="nav-item"><a class="nav-link" href="/influencer_search">Search</a></li>                   
+                    <li class="nav-item"><a class="nav-link" href="/influencer_campaigns">Campaigns</a></li>
+                   
+                    <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="container mt-5" style="animation: fadeIn 1s ease-out;">
+            <h1 class="welcome-text">Influencer Profile</h1>
+            <div class="card">
+                <div class="card-body">
+                    <form id="profileForm">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" v-model="influencer.name" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="niche">Niche</label>
+                            <input type="text" class="form-control" id="niche" v-model="influencer.niche" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="followerCount">Follower Count</label>
+                            <input type="text" class="form-control" id="followerCount" v-model="influencer.reach" readonly>
+                        </div>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editProfileForm">
+                            <div class="form-group">
+                                <label for="editName">Name</label>
+                                <input type="text" class="form-control" id="editName" v-model="influencer.name">
+                            </div>
+                            <div class="form-group">
+                                <label for="editNiche">Niche</label>
+                                <input type="text" class="form-control" id="editNiche" v-model="influencer.niche">
+                            </div>
+                            <button type="button" class="btn btn-success" @click="saveProfile">Save</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                influencer: {
+                    name: '',
+                    niche: '',
+                    reach: '' // Adjusted to use 'reach'
+                }
+            },
+            created() {
+                this.fetchInfluencerData();
+            },
+            methods: {
+                fetchInfluencerData() {
+                    axios.get('/api/influencer_profile')
+                        .then(response => {
+                            this.influencer = response.data;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching influencer data:', error);
+                        });
+                },
+                async saveProfile() {
+                    try {
+                        const formData = new URLSearchParams();
+                        formData.append('name', this.influencer.name);
+                        formData.append('niche', this.influencer.niche);
+
+                        const response = await axios.post('/api/save_influencer_profile', formData, {
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            }
+                        });
+
+                        this.showAlert('Profile updated successfully!', 'success');
+                        $('#editProfileModal').modal('hide');
+                        this.fetchInfluencerData();
+                    } catch (error) {
+                        this.showAlert('Failed to update profile. Please try again.', 'danger');
+                        console.error('Error saving profile:', error);
+                    }
+                },
+                showAlert(message, type) {
+                    const alertContainer = document.getElementById('alert-container');
+                    const alert = document.createElement('div');
+                    alert.className = `alert alert-${type} alert-dismissible fade show`;
+                    alert.role = 'alert';
+                    alert.innerHTML = `
+                        ${message}
+                    `;
+                    alertContainer.appendChild(alert);
+                    setTimeout(() => {
+                        $(alert).alert('close');
+                    }, 3000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+

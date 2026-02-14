@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Sponsors</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap">
+  <style>
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .fade-in.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .navbar {
+      background-color: #343a40;
+      animation: fadeIn 1s ease-out;
+    }
+    .navbar-brand, .nav-link {
+      color: #ffffff !important;
+    }
+    body {
+      font-family: 'Noto Serif', serif;
+      background-color: #f8f9fa;
+    }
+    .dashboard-container {
+      max-width: 1300px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .card {
+      margin: 20px;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="/admin_dashboard">Dashboard</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="/admin_statistics">Statistics</a>
+            </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin_search">Search</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin_influencers">Influencers</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin_sponsors">Sponsors</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin_campaigns">Campaigns</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin_adrequests">Ad Requests</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Log Out</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+  <div id="app" class="dashboard-container fade-in">
+    <h1>All Sponsors</h1>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Industry</th>
+          <th>Budget</th>
+          <th>Status</th>
+          <th>Approval</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="sponsor in sponsors" :key="sponsor.sponsor_id">
+          <td>{{ sponsor.name }}</td>
+          <td>{{ sponsor.industry }}</td>
+          <td>{{ sponsor.budget }}</td>
+          <td>{{ sponsor.flag }}</td>
+          <td>{{ sponsor.approval }}</td>
+          <td>
+            <button class="btn btn-danger" @click="flagSponsor(sponsor.sponsor_id)">Flag</button>
+            <button class="btn btn-warning" @click="unflagSponsor(sponsor.sponsor_id)">Unflag</button>
+            <button class="btn btn-warning" @click="approveSponsor(sponsor.sponsor_id)">Approve</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        sponsors: []
+      },
+      mounted() {
+        this.getSponsors();
+      },
+      methods: {
+        getSponsors() {
+          fetch('/api/admin_sponsors')
+            .then(response => response.json())
+            .then(data => {
+              this.sponsors = data;
+              document.querySelector('.dashboard-container').classList.add('show');
+            });
+        },
+        flagSponsor(sponsor_id) {
+          fetch('/api/admin_sponsors', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ sponsor_id: sponsor_id, action: 'flag' })
+          }).then(() => this.getSponsors());
+        },
+        unflagSponsor(sponsor_id) {
+          fetch('/api/admin_sponsors', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ sponsor_id: sponsor_id, action: 'unflag' })
+          }).then(() => this.getSponsors());
+        },
+        approveSponsor(sponsorId) {
+            axios.post('/approve_sponsor', { sponsor_id: sponsorId })
+                .then(response => {
+                    if (response.data.success) {
+                        alert('Sponsor approved successfully!');
+                        this.getSponsors(); // Refresh the sponsor list after approval
+                    } else {
+                        alert('Error approving sponsor: ' + response.data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while approving the sponsor.');
+                });
+        }
+      }
+    });
+  </script>
+</body>
+</html>

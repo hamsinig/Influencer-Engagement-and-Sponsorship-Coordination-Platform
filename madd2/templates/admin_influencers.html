@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Influencers</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap">
+  <style>
+    .fade-in-nav {
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .fade-in-nav.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .fade-in.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .navbar {
+      background-color: #343a40;
+      animation: fadeIn 1s ease-out;
+    }
+    .navbar-brand, .nav-link {
+      color: #ffffff !important;
+    }
+    body {
+      font-family: 'Noto Serif', serif;
+      background-color: #f8f9fa;
+    }
+    .dashboard-container {
+      max-width: 1300px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      opacity: 0; /* Initial state for fade-in */
+      transform: translateY(20px); /* Initial state for fade-in */
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out; /* Smooth transition */
+    }
+  </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark fade-in-nav show">
+        <a class="navbar-brand" href="/admin_dashboard">Dashboard</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/admin_statistics">Statistics</a>
+          </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin_search">Search</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin_influencers">Influencers</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin_sponsors">Sponsors</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin_campaigns">Campaigns</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin_adrequests">Ad Requests</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/logout">Log Out</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+  <div id="app" class="dashboard-container fade-in">
+    <h1>All Influencers</h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+
+          <th>Niche</th>
+          <th>Reach</th>
+          <th>Flag Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="influencer in influencers" :key="influencer.influencer_id">
+          <td>{{ influencer.influencer_id }}</td>
+          <td>{{ influencer.name }}</td>
+
+          <td>{{ influencer.niche }}</td>
+          <td>{{ influencer.reach }}</td>
+          <td>{{ influencer.flag }}</td>
+          <td>
+            <button @click="toggleFlag(influencer)" class="btn btn-warning">
+              {{ influencer.flag === 'Flagged' ? 'Unflag' : 'Flag' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          influencers: []  // Array to hold influencer data fetched from the API
+        };
+      },
+      created() {
+        this.fetchInfluencers();  // Fetch influencers when the component is created
+      },
+      mounted() {
+        // Trigger the fade-in effect after the component has mounted
+        const dashboardContainer = document.querySelector('.dashboard-container');
+        setTimeout(() => {
+          dashboardContainer.classList.add('show');
+        }, 100); // Slight delay to allow for the fade-in effect
+      },
+      methods: {
+        // Fetch influencers from the backend API
+        async fetchInfluencers() {
+          try {
+            const response = await fetch('/api/admin_influencers');
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            this.influencers = data;
+          } catch (error) {
+            console.error('Error fetching influencers:', error);
+          }
+        },
+        // Toggle the flag status of an influencer
+        async toggleFlag(influencer) {
+  try {
+    const reason = influencer.flag === 'Valid' ? prompt('Enter reason for flagging this influencer:') : '';
+    if (influencer.flag === 'Valid' && !reason) {
+      alert('Flagging requires a reason.');
+      return;
+    }
+
+    const response = await fetch('/api/admin_flag_influencer', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+  influencer_id: influencer.influencer_id,
+  reason: reason,
+  status: influencer.flag, // Send the current status
+}),
+
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      // Update the frontend based on the API response
+      influencer.flag = influencer.flag === 'Flagged' ? 'Valid' : 'Flagged';
+      alert(result.success);
+    } else {
+      alert(result.error || 'Failed to toggle flag.');
+    }
+  } catch (error) {
+    console.error('Error toggling flag:', error);
+    alert('An error occurred. Please try again.');
+  }
+}
+
+      }
+    });
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+

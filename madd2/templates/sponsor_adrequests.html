@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sponsor Ad Requests</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap">
+    <style>
+       
+
+
+        body {
+            font-family: 'Noto Serif', serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #343a40;
+        }
+        .navbar-brand, .nav-link {
+            color: #ffffff !important;
+        }
+       
+        .modal-header, .modal-footer {
+            background-color: #343a40;
+            color: #ffffff;
+        }
+        /* For vertical stacking */
+/* General Button Styles */
+.custom-btn {
+    font-size: 14px;
+    padding: 5px 5px;
+    margin: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    border: 2px solid transparent; /* Default border */
+    border-radius: 8px; /* Default rounded corners */
+    cursor: pointer;
+}
+
+.fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .table-container {
+            margin-left:100px;
+            animation: fadeIn 1s ease-out;
+            margin-top: 20px;
+           
+        }
+        .table-container table {
+            margin-left:100px;
+            width: 100%;
+            width:1200px;
+           
+        }
+/* Background color with gradient */
+.custom-btn-gradient {
+    
+    background-color: #343a40;
+    border: 2px solid transparent;
+}
+
+
+
+/* Edit button */
+.custom-btn-edit {
+    background-color:#343a40;
+    color: white;
+    border-color: #343a40;
+}
+
+.custom-btn-edit:hover {
+    background-color: #343a40;
+    border-color:#343a40;
+    transform: scale(1.1); /* Slightly increase size on hover */
+}
+
+/* Delete button */
+.custom-btn-delete {
+    background-color: #343a40;
+    color: white;
+    border-color: #343a40;
+}
+
+.custom-btn-delete:hover {
+    background-color:#343a40;
+    border-color:#343a40;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+}
+
+/* Accept button */
+.custom-btn-accept {
+    background-color:#343a40;
+    color: white;
+    border-color: #343a40;
+}
+
+.custom-btn-accept:hover {
+    background-color: #343a40;
+    border-color: #343a40;
+    transform: scale(1.1);
+}
+
+/* Reject button */
+.custom-btn-reject {
+    background-color: #95a5a6;
+    color: white;
+    border-color: #95a5a6;
+}
+
+.custom-btn-reject:hover {
+    background-color: #7f8c8d;
+    border-color: #7f8c8d;
+    transform: scale(1.1);
+}
+
+/* Disabled Button */
+.custom-btn-disabled {
+    background-color: #BDC3C7;
+    color: white;
+    cursor: not-allowed;
+    border-color: #BDC3C7;
+}
+
+.custom-btn-disabled:hover {
+    background-color: #BDC3C7;
+}
+
+/* Button with Border */
+.custom-btn-bordered {
+    background-color: transparent;
+    color: #3498db;
+    border: 2px solid #343a40;
+}
+
+.custom-btn-bordered:hover {
+    background-color: #343a40;
+    color: white;
+}
+
+/* Shadow Effect */
+.custom-btn-shadow {
+    background-color: #343a40;
+    color: white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* subtle shadow */
+}
+
+.custom-btn-shadow:hover {
+    background-color: #343a40;
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.2); /* Larger shadow */
+}
+
+/* Spinning Animation */
+.custom-btn-spin {
+    background-color:#343a40;
+    color: #343a40;
+    position: relative;
+}
+
+.custom-btn-spin:active {
+    animation: spin 0.5s ease-in-out;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Button Container */
+.button-container {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">Sponsor Dashboard</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link" href="/sponsor_dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/sponsor_search">Search</a></li>
+                <li class="nav-item"><a class="nav-link" href="/sponsor_adrequests">Ad Requests</a></li>
+                <li class="nav-item"><a class="nav-link" href="/sponsor_campaigns">Campaigns</a></li>
+                <li class="nav-item"><a class="nav-link" href="/sponsor_profile">Profile</a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+<!-- Error alert, initially hidden -->
+<div id="errorAlert" class="alert alert-danger d-none" role="alert"></div>
+
+    <div class="container table-container">
+        <h1 class="mt-4"style="margin-left: 100px;">Ad Requests</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Ad Request ID</th>
+                    <th>Campaign Name</th>
+                    <th>Influencer Name</th>
+                    <th>Messages</th>
+                    <th>Requirements</th>
+                    <th>Payment Amount</th>
+                    <th>Status</th>
+                    <th>Initated By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="adRequestsTableBody">
+                <!-- Dynamic rows will be inserted here -->
+            </tbody>
+        </table>
+        <button 
+    id="addAdRequestButton" 
+    class="btn btn-primary mt-4 custom-btn-gradient custom-btn-accept custom-btn-shadow custom-btn-spin" 
+    data-toggle="modal" 
+    data-target="#addAdRequestModal"
+    style="color: white;margin-left: 100px;">
+    Add an Ad Request
+</button>
+
+    </div>
+
+    <!-- Modal to Add Ad Request -->
+    <div class="modal fade" id="addAdRequestModal" tabindex="-1" role="dialog" aria-labelledby="addAdRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAdRequestModalLabel">Add Ad Request</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="campaignSelect">Select Campaign</label>
+                        <select class="form-control" id="campaignSelect" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="influencerSelect">Select Influencer</label>
+                        <select class="form-control" id="influencerSelect" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="messages">Messages</label>
+                        <textarea class="form-control" id="messages" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="requirements">Requirements</label>
+                        <textarea class="form-control" id="requirements" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentAmount">Payment Amount</label>
+                        <input type="number" class="form-control" id="paymentAmount" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="submitAdRequestButton">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal to Edit Ad Request -->
+    <div class="modal fade" id="editAdRequestModal" tabindex="-1" role="dialog" aria-labelledby="editAdRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAdRequestModalLabel">Edit Ad Request</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="editMessages">Messages</label>
+                        <textarea class="form-control" id="editMessages" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editRequirements">Requirements</label>
+                        <textarea class="form-control" id="editRequirements" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="updateAdRequestButton">Update</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Accept Ad Request Modal -->
+<div class="modal fade" id="acceptAdRequestModal" tabindex="-1" aria-labelledby="acceptAdRequestModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="acceptAdRequestModalLabel">Accept Ad Request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to accept this ad request?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="confirmAcceptButton" class="btn btn-primary">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Reject Ad Request Modal -->
+<div class="modal fade" id="rejectAdRequestModal" tabindex="-1" aria-labelledby="rejectAdRequestModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectAdRequestModalLabel">Reject Ad Request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to reject this ad request?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="confirmRejectButton" class="btn btn-danger">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Modal to Confirm Delete Ad Request -->
+    <div class="modal fade" id="deleteAdRequestModal" tabindex="-1" role="dialog" aria-labelledby="deleteAdRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteAdRequestModalLabel">Delete Ad Request</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this ad request?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="confirmDeleteButton">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentAdRequestId = null;
+
+            // Fetch and populate ad requests and dropdowns
+            async function fetchAdRequests() {
+                try {
+                    const response = await axios.get('/api/sponsor_adrequest');
+                    const { adrequests, influencers, campaigns } = response.data;
+
+                    const adRequestsTableBody = document.getElementById('adRequestsTableBody');
+                    adRequestsTableBody.innerHTML = '';
+
+                    adrequests.forEach(adrequest => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${adrequest.ad_request_id}</td>
+                            <td>${adrequest.campaign_name}</td>
+                            <td>${adrequest.influencer_name}</td>
+                            <td>${adrequest.messages}</td>
+                            <td>${adrequest.requirements}</td>
+                            <td>${adrequest.payment_amount}</td>
+                            <td>${adrequest.status}</td>
+                            <td>${adrequest.initiated_by}</td>
+                            <td>
+    <div class="button-container">
+        <button class="btn custom-btn custom-btn-edit custom-btn-rounded" onclick="editAdRequest(${adrequest.ad_request_id}, '${adrequest.messages}', '${adrequest.requirements}')">Edit</button>
+        <button class="btn custom-btn custom-btn-delete custom-btn-pill" onclick="confirmDelete(${adrequest.ad_request_id})">Delete</button>
+        ${adrequest.initiated_by === 'Influencer' ? `
+  <button class="btn custom-btn custom-btn-accept custom-btn-gradient" onclick="acceptAdRequest(${adrequest.ad_request_id})">Accept Request</button>
+
+            <button class="btn custom-btn custom-btn-reject custom-btn-shadow" onclick="rejectAdRequest(${adrequest.ad_request_id})">Reject Request</button>
+        ` : ''}
+	   </div>
+</td>
+
+
+                        `;
+                       
+
+                        adRequestsTableBody.appendChild(row);
+                    });
+
+                    // Populate dropdowns for add modal
+                    const campaignSelect = document.getElementById('campaignSelect');
+const influencerSelect = document.getElementById('influencerSelect');
+
+// Prevent duplicate campaign options
+campaigns.forEach(campaign => {
+    const exists = Array.from(campaignSelect.options).some(
+        option => option.value === String(campaign.campaign_id)
+    );
+
+    if (!exists) {
+        const option = document.createElement('option');
+        option.value = campaign.campaign_id;
+        option.textContent = campaign.name;
+        campaignSelect.appendChild(option);
+    }
+});
+console.log('All campaign names:', campaigns.map(campaign => campaign.name));
+
+// Prevent duplicate influencer options
+influencers.forEach(influencer => {
+    const exists = Array.from(influencerSelect.options).some(
+        option => option.value === String(influencer.influencer_id)
+    );
+
+    if (!exists) {
+        const option = document.createElement('option');
+        option.value = influencer.influencer_id;
+        option.textContent = influencer.name;
+        influencerSelect.appendChild(option);
+    }
+});
+
+
+                } catch (error) {
+                    console.error('Error fetching ad requests:', error);
+                }
+            }
+
+            // Handle add ad request
+            document.getElementById('submitAdRequestButton').addEventListener('click', async () => {
+                const campaignId = document.getElementById('campaignSelect').value;
+                const influencerId = document.getElementById('influencerSelect').value;
+                const messages = document.getElementById('messages').value;
+                const requirements = document.getElementById('requirements').value;
+                const paymentAmount = document.getElementById('paymentAmount').value;
+
+                try {
+                    await axios.post('/api/add_adrequest', {
+                        campaign_id: campaignId,
+                        
+                        influencer_id: influencerId,
+                        messages: messages,
+                        requirements: requirements,
+                        payment_amount: paymentAmount
+                        
+                    });
+                    //console.log('All campaign names:', campaigns.map(campaign => campaign.name));
+                    $('#addAdRequestModal').modal('hide');
+                    fetchAdRequests();
+                } catch (error) {
+                    if (error.response && error.response.status === 400) {
+        // Show the error message in the alert div
+        const errorAlert = document.getElementById('errorAlert');
+        errorAlert.textContent = 'An Ad request with this campaign and influencer already exists.';
+        errorAlert.classList.remove('d-none');  // Show the alert
+    } else {
+        console.error('Error adding ad request:', error);
+    }
+}
+            });
+
+            // Handle edit ad request
+            window.editAdRequest = function(adRequestId, messages, requirements) {
+                currentAdRequestId = adRequestId;
+                document.getElementById('editMessages').value = messages;
+                document.getElementById('editRequirements').value = requirements;
+                $('#editAdRequestModal').modal('show');
+            };
+
+            document.getElementById('updateAdRequestButton').addEventListener('click', async () => {
+                const messages = document.getElementById('editMessages').value;
+                console.log(messages)
+                const requirements = document.getElementById('editRequirements').value;
+
+                try {
+                    await axios.put(`/api/update_adrequest/${currentAdRequestId}`, {
+                        messages: messages,
+                        requirements: requirements
+                    });
+
+                    $('#editAdRequestModal').modal('hide');
+                    fetchAdRequests();
+                } catch (error) {
+                    console.error('Error updating ad request:', error);
+                }
+            });
+
+            // Handle delete ad request
+            window.confirmDelete = function(adRequestId) {
+                currentAdRequestId = adRequestId;
+                $('#deleteAdRequestModal').modal('show');
+            };
+
+            document.getElementById('confirmDeleteButton').addEventListener('click', async () => {
+                try {
+                    await axios.delete(`/api/delete_adrequest/${currentAdRequestId}`);
+                    $('#deleteAdRequestModal').modal('hide');
+                    fetchAdRequests();
+                } catch (error) {
+                    console.error('Error deleting ad request:', error);
+                }
+            });
+
+            fetchAdRequests();
+ // Handle accept ad request
+window.acceptAdRequest = function (adRequestId) {
+    currentAdRequestId = adRequestId;
+    $('#acceptAdRequestModal').modal('show');
+};
+
+document.getElementById('confirmAcceptButton').addEventListener('click', async () => {
+    try {
+        await axios.put(`/api/ad_request/${currentAdRequestId}/acceptt`);
+        $('#acceptAdRequestModal').modal('hide');
+        fetchAdRequests();
+    } catch (error) {
+        console.error('Error accepting ad request:', error);
+    }
+});
+// Handle reject ad request
+window.rejectAdRequest = function (adRequestId) {
+    currentAdRequestId = adRequestId;
+    $('#rejectAdRequestModal').modal('show');
+};
+
+document.getElementById('confirmRejectButton').addEventListener('click', async () => {
+    try {
+        await axios.put(`/api/ad_request/${currentAdRequestId}/rejectt`);
+        $('#rejectAdRequestModal').modal('hide');
+        fetchAdRequests();
+    } catch (error) {
+        console.error('Error rejecting ad request:', error);
+    }
+
+	    });
+    });
+
+
+
+
+    </script>
+</body>
+</html>

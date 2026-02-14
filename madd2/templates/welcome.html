@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Noto Serif', sans-serif;
+            background-color: #c11010;
+            margin: 0;
+            padding: 0;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100vh); /* Start off-screen above */
+                opacity: 0; /* Start as invisible */
+            }
+            to {
+                transform: translateY(0); /* End at final position */
+                opacity: 1; /* End visible */
+            }
+        }
+
+        #mainBox {
+            animation: slideIn 1s ease-out;
+            max-width: 500px;
+            margin: 200px auto;
+            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: relative; /* Make it a positioned container */
+        }
+
+        h1, .brand-title {
+            color: #fff;
+            text-align: center;
+        }
+
+        .brand-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-top: 50px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+        }
+
+        nav {
+            margin-top: 20px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            margin: 10px 0;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            width: 250px; /* Fixed width for all buttons */
+            padding: 15px 0; /* Padding for height and spacing */
+            border-radius: 5px;
+            display: inline-block;
+            background-color: rgba(0, 123, 255, 0.5); /* Translucent background */
+            border: 2px solid rgba(255, 255, 255, 0.5); /* Translucent border */
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            background-color: rgba(100, 108, 118, 0.7); /* Darker translucent background on hover */
+            color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .signup-prompt {
+            position: absolute; /* Position it absolutely within the container */
+            bottom: 10px; /* Align it at the bottom */
+            left: 50%; /* Center it horizontally */
+            transform: translateX(-50%); /* Adjust for center alignment */
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .signup-prompt a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .signup-prompt a:hover {
+            text-decoration: underline;
+        }
+
+        /* Custom Alert Styles */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            z-index: 1050; /* Ensure it's on top of other elements */
+            display: none; /* Hidden by default */
+            opacity: 0; /* Start as invisible */
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .alert.show {
+            display: block;
+            opacity: 1; /* Make visible */
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Influenz360 title -->
+    <h1 class="brand-title">Influenz360</h1>
+
+    <!-- Welcome Box -->
+    <div id="mainBox">
+        <h1>Welcome</h1>
+        <nav>
+            <ul>
+                <li><a href="/loginn" class="login-btn">Login</a></li>
+                <li><a href="/signup" class="login-btn">Signup</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Handle login button clicks
+            document.querySelectorAll('.login-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var role = this.getAttribute('data-role');
+                    document.getElementById('modalRole').textContent = `Hello, ${role}`;
+                    document.getElementById('hiddenRole').value = role;
+                });
+            });
+
+            // Fade out alerts after 5 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.alert').forEach(alert => {
+                    alert.classList.remove('show');
+                    setTimeout(() => alert.remove(), 500); // Remove after fade-out
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
+

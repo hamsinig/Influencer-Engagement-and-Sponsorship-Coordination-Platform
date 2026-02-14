@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #c11010;
+            margin: 0;
+            padding: 0;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100vh); /* Start off-screen above */
+                opacity: 0; /* Start as invisible */
+            }
+            to {
+                transform: translateY(0); /* End at final position */
+                opacity: 1; /* End visible */
+            }
+        }
+
+        #mainBox {
+            max-width: 350px;
+            margin: 200px auto;
+            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            animation: slideIn 1s ease-out; /* Apply the sliding animation */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn-block {
+            display: block;
+            width: 200px;
+        }
+
+        .signup-prompt {
+            font-size: 16px;
+            color: #fff;
+            margin-top: 20px;
+        }
+
+        .signup-prompt a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .signup-prompt a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Buttons to trigger the modal -->
+    <div id="mainBox">
+        <h1>Welcome</h1>
+        <div class="btn-container">
+            <button class="btn btn-primary btn-block mb-2" data-toggle="modal" data-target="#loginModal" data-role="Influencer">Influencer Log In</button>
+            <button class="btn btn-primary btn-block mb-2" data-toggle="modal" data-target="#loginModal" data-role="Sponsor">Sponsor Log In</button>
+            <button class="btn btn-primary btn-block mb-2" data-toggle="modal" data-target="#loginModal" data-role="Admin">Admin Log In</button>
+        </div>
+        <div class="signup-prompt">
+            Don't have an account? <a href="/signup">Sign up!</a>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Log In</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <!-- Hidden input to hold the role -->
+                        <input type="hidden" id="role" name="role">
+                        <button type="submit" class="btn btn-primary">Log In</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Container -->
+    <div id="alert-container"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.querySelectorAll('[data-role]').forEach(button => {
+            button.addEventListener('click', function() {
+                const role = this.getAttribute('data-role');  // Get the role from the clicked button
+                document.getElementById('role').value = role;  // Set the hidden input value to this role
+                document.getElementById('loginModalLabel').innerText = `${role} Log In`;  // Update the modal title
+            });
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault();  // Prevent form submission the traditional way
+
+    const formData = new FormData(this);
+
+    fetch('/loginn', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.error)
+       // const alertContainer = document.getElementById('alert-container');
+
+        if (data.redirect) {
+            window.location.href = data.redirect;  // Redirect to the appropriate dashboard
+        } else if (data.error) {
+            // Display error message if there is an error
+            alert(data.error);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+    </script>
+</body>
+</html>

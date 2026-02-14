@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Ad Requests</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap">
+    <style>
+        body {
+            font-family: 'Noto Serif', serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #343a40;
+        }
+        .navbar-brand, .nav-link {
+            color: #ffffff !important;
+        }
+        .content {
+            padding: 20px;
+        }
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .table-container {
+            animation: fadeIn 1s ease-out;
+            margin-top: 20px;
+            position: relative;
+        }
+        .table-container table {
+            width: 100%;
+            table-layout: fixed;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">Dashboard</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link" href="/influencer_dashboard">Dashboard</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/influencer_profile">Profile</a>
+                </li>
+
+		 <li class="nav-item"><a class="nav-link" href="/influencer_search">Search</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/influencer_adrequest">Ad Request</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href=" /influencer_campaigns">Campaigns</a>  
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Log Out</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="alert-container"></div>
+
+    <div class="content" id="app">
+        <h2>Manage Your Ad Requests</h2>
+
+        <!-- Ad Requests Table -->
+        <div class="table-container">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Campaign Name</th>
+                        <th>Sponsor</th>
+                        <th>Messages</th>
+                        <th>Requirements</th>
+                        <th>Payment Amount</th>
+                        <th>Status</th>
+                        <th>Initiated By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="adRequest in adRequests" :key="adRequest.ad_request_id">
+                        <td>{{ adRequest.campaign_name }}</td>
+                        <td>{{ adRequest.sponsor_name }}</td>
+                        <td>{{ adRequest.messages }}</td>
+                        <td>{{ adRequest.requirements }}</td>
+                        <td>${{ adRequest.payment_amount ? adRequest.payment_amount.toFixed(2) : '0.00' }}</td>
+                        <td>{{ adRequest.status }}</td>
+                        <td>{{adRequest.initiated_by}}</td>
+                        <td>
+                            
+                            <button class="btn btn-secondary btn-sm" @click="updateAdRequestStatus(adRequest, 'Accepted')">Accept</button>
+                            <button class="btn btn-danger btn-sm" @click="updateAdRequestStatus(adRequest, 'Rejected')">Reject</button>
+                            <button class="btn btn-danger btn-sm" @click="confirmDelete(adRequest)">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+<!-- Add Ad Request Button -->
+<div class="content" id="app">
+    <!-- Existing content -->
+    <button class="btn btn-primary mb-3" @click="openAddAdRequestModal">Add Ad Request</button>
+
+    <!-- Existing table and modals -->
+
+    <!-- Bootstrap Modal for Adding Ad Request -->
+    <div class="modal fade" id="addAdRequestModal" tabindex="-1" aria-labelledby="addAdRequestLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAdRequestLabel">Add Ad Request</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="submitAdRequest">
+                        <div class="form-group">
+                            <label for="campaign">Campaign</label>
+                            <select v-model="newAdRequest.campaign_id" class="form-control" id="campaign" required>
+                                <option v-for="campaign in campaigns" :key="campaign.campaign_id" :value="campaign.campaign_id">
+                                    {{ campaign.campaign_name }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="messages">Messages</label>
+                            <textarea v-model="newAdRequest.messages" class="form-control" id="messages" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="requirements">Requirements</label>
+                            <textarea v-model="newAdRequest.requirements" class="form-control" id="requirements" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="payment_amount">Payment Amount</label>
+                            <input type="number" v-model="newAdRequest.payment_amount" class="form-control" id="payment_amount" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Ad Request</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+      
+
+        <!-- Bootstrap Modal for Confirming Deletion -->
+        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteConfirmLabel">Confirm Deletion</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this ad request?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" @click="deleteAdRequest">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue.js and Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        new Vue({
+    el: '#app',
+    data: {
+        adRequests: [],
+        campaigns: [], // Stores campaign list
+        selectedAdRequest: {},
+        adRequestToDelete: null,
+        currentInfluencerId: null,
+        newAdRequest: {
+            campaign_id: '',
+            messages: '',
+            requirements: '',
+            payment_amount: ''
+        }
+    },
+    created() {
+        this.fetchAdRequests(); // Fetch ad requests and campaigns on load
+    },
+    methods: {
+        fetchAdRequests() {
+            axios.get('/api/influencer_adrequest')
+                .then(response => {
+                    this.adRequests = response.data.ad_requests_list;
+                    this.campaigns = response.data.campaigns; // Fetch campaigns here
+                    this.currentInfluencerId = response.data.influencer; 
+                })
+                .catch(error => {
+                    console.error('Error fetching ad requests:', error);
+                });
+        },
+        updateAdRequestStatus(adRequest, status) {
+    if (status === 'Accepted' || status === 'Rejected') {
+        if (adRequest.initiated_by === 'Influencer') {
+            this.showAlert('You can\'t accept or reject your own requests', 'alert-warning');
+        } else {
+            axios.post('/api/adrequest_accept_reject', {
+                ad_request_id: adRequest.ad_request_id,
+                status: status
+            })
+            .then(response => {
+                console.log('Ad request status updated:', response.data);
+                adRequest.status = status;
+                this.showAlert('Ad request status updated successfully', 'alert-success');
+            })
+            .catch(error => {
+                console.error('Error updating ad request status:', error);
+            });
+        }
+    } else if (status === 'Delete') {
+        this.confirmDelete(adRequest);
+    }
+}
+,
+        openAddAdRequestModal() {
+            this.newAdRequest = {
+                campaign_id: '',
+                messages: '',
+                requirements: '',
+                payment_amount: ''
+            };
+            $('#addAdRequestModal').modal('show');
+        },
+
+        submitAdRequest() {
+    // Check if there's already an ad request for the selected campaign
+    const existingAdRequest = this.adRequests.find(req => 
+        req.campaign_id === this.newAdRequest.campaign_id &&
+        req.initiated_by === 'Influencer'
+    );
+
+    if (existingAdRequest) {
+        this.showAlert('You already have a pending/accepted/rejected ad request for this campaign', 'alert-warning');
+        return; // Prevent submission if an existing request is found
+    }
+
+    // Proceed with adding the new ad request
+    this.newAdRequest.influencer_id = this.currentInfluencerId;
+    axios.post('/api/influencer_adrequests', this.newAdRequest)
+        .then(response => {
+            console.log('Ad request added:', response.data);
+            this.adRequests.push({
+                ...this.newAdRequest,
+                ad_request_id: Date.now(), // Placeholder, adjust as needed
+                campaign_name: this.campaigns.find(c => c.campaign_id === this.newAdRequest.campaign_id).campaign_name,
+                influencer_id: this.currentInfluencerId,
+                status: 'Pending',
+                initiated_by: 'Influencer'
+            });
+            $('#addAdRequestModal').modal('hide');
+            this.showAlert('Ad request added successfully', 'alert-success');
+            this.fetchAdRequests();
+        })
+        .catch(error => {
+            console.error('Error adding ad request:', error);
+        });
+}
+,
+
+        updateAdRequestStatus(adRequest, status) {
+    if (adRequest.initiated_by === 'Influencer') {
+        this.showAlert('You can\'t accept or reject your own requests', 'alert-warning');
+    } else {
+        axios.post('/api/adrequest_accept_reject', {
+            ad_request_id: adRequest.ad_request_id,
+            status: status
+        })
+        .then(response => {
+            console.log('Ad request status updated:', response.data);
+            adRequest.status = status;
+            this.showAlert('Ad request status updated successfully', 'alert-success');
+        })
+        .catch(error => {
+            console.error('Error updating ad request status:', error);
+
+        });
+    }
+}
+,
+        confirmDelete(adRequest) {
+            
+                this.adRequestToDelete = adRequest;
+                $('#deleteConfirmModal').modal('show');
+            
+        },
+
+        deleteAdRequest() {
+            axios.delete(`/api/influencer_adrequests/${this.adRequestToDelete.ad_request_id}`)
+                .then(response => {
+                    console.log('Ad request deleted:', response.data);
+                    this.adRequests = this.adRequests.filter(req => req.ad_request_id !== this.adRequestToDelete.ad_request_id);
+                    $('#deleteAdRequestModal').modal('hide');
+                    this.showAlert('Ad request deleted successfully', 'alert-success');
+                })
+                .catch(error => {
+                    console.error('Error deleting ad request:', error);
+                });
+        },
+
+        showAlert(message, alertType) {
+            const alertElement = document.createElement('div');
+            alertElement.className = `alert ${alertType} alert-dismissible fade show`;
+            alertElement.role = 'alert';
+            alertElement.innerHTML = `
+                ${message}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            `;
+            const alertContainer = document.querySelector('.alert-container');
+            if (alertContainer) {
+                alertContainer.innerHTML = '';
+                alertContainer.appendChild(alertElement);
+                $(alertElement).alert();
+            } else {
+                console.error('Alert container not found');
+            }
+        }
+    }
+});
+
+         </script>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

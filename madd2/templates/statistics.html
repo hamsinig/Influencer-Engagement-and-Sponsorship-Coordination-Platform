@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<style>
+    .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .fade-in.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .navbar {
+        font-size:large;
+        background-color: #343a40;
+        animation: fadeIn 1s ease-out;
+    }
+    .navbar-brand, .nav-link {
+        color: #ffffff !important;
+    }
+    body {
+     
+        background-color: #f8f9fa;
+    }
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        opacity: 0; /* Initial state for fade-in */
+        transform: translateY(20px); /* Initial state for fade-in */
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out; /* Smooth transition */
+    }
+    .dashboard-container.show {
+        opacity: 1;
+        transform: translateY(0); /* Final state for fade-in */
+    }
+    .custom-margin {
+        margin-top: 30px; /* Adjust the value as needed */
+    }
+    h1 {
+        font-size: 36px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .card {
+        margin: 20px;
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: scale(1.05);
+    }
+    .card-title {
+        font-size: 24px;
+    }
+</style>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="/admin_dashboard">Admin Dashboard</a>
+</nav>
+<body class="bg-light">
+    <div class="container py-5">
+        <h1 class="text-center mb-5">Statistics Dashboard</h1>
+
+        <!-- Cards Section -->
+        <div class="row g-4" id="stats-cards">
+            <!-- Cards will be dynamically added here -->
+        </div>
+
+        <!-- Flagged Users Section -->
+        <div class="mt-5">
+            <h2>Flagged Statistics</h2>
+            <ul class="list-group mt-3" id="flagged-stats">
+                <!-- Flagged stats will be dynamically added here -->
+            </ul>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="mt-5">
+            <h2>Overview Chart</h2>
+            <canvas id="overviewChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <script>
+        async function fetchStatistics() {
+            try {
+                const response = await axios.get('/api/statistics'); // API endpoint
+                const stats = response.data;
+
+                // Update Cards Section
+                const cardsContainer = document.getElementById('stats-cards');
+                const cardData = [
+                    { title: 'Total Sponsors', value: stats.num_sponsors },
+                    { title: 'Total Influencers', value: stats.num_influencers },
+                    { title: 'Total Campaigns', value: stats.num_campaigns },
+                    { title: 'Total Ad Requests', value: stats.num_ad_requests }
+                ];
+                cardsContainer.innerHTML = cardData.map(card => `
+                    <div class="col-md-3">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">${card.title}</h5>
+                                <p class="card-text display-6">${card.value}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Update Flagged Users Section
+                const flaggedContainer = document.getElementById('flagged-stats');
+                const flaggedData = [
+                    { label: 'Total Flagged Users', value: stats.no_of_users_flagged },
+                    { label: 'Flagged Campaigns', value: stats.flagged_campaign_names.join(', ') || 'None' },
+                    { label: 'Flagged Sponsors', value: stats.flagged_sponsor_names.join(', ') || 'None' },
+                    { label: 'Flagged Influencers', value: stats.flagged_influencer_names.join(', ') || 'None' }
+                ];
+                flaggedContainer.innerHTML = flaggedData.map(flag => `
+                    <li class="list-group-item">
+                        <strong>${flag.label}:</strong> ${flag.value}
+                    </li>
+                `).join('');
+
+                // Render Chart
+                const ctx = document.getElementById('overviewChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Sponsors', 'Influencers', 'Campaigns', 'Ad Requests', 'Flagged Users'],
+                        datasets: [{
+                            label: 'Count',
+                            data: [
+                                stats.num_sponsors,
+                                stats.num_influencers,
+                                stats.num_campaigns,
+                                stats.num_ad_requests,
+                                stats.no_of_users_flagged
+                            ],
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(153, 102, 255, 0.7)',
+                                'rgba(255, 99, 132, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 99, 132, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching statistics:', error);
+            }
+        }
+
+        // Fetch and render statistics on page load
+        document.addEventListener('DOMContentLoaded', fetchStatistics);
+    </script>
+</body>
+</html>

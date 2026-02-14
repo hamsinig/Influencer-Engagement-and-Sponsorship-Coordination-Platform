@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Campaigns</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-vue@2.21.2/dist/bootstrap-vue.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-vue@2.21.2/dist/bootstrap-vue.min.js"></script>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap">
+    <style>
+      .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+      }
+      .fade-in.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .navbar {
+        background-color: #343a40;
+        animation: fadeIn 1s ease-out;
+      }
+      .navbar-brand, .nav-link {
+        color: #ffffff !important;
+      }
+      body {
+        font-family: 'Noto Serif', serif;
+        background-color: #f8f9fa;
+      }
+      .dashboard-container {
+        max-width: 1300px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        opacity: 0; /* Initial state for fade-in */
+        transform: translateY(20px); /* Initial state for fade-in */
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out; /* Smooth transition */
+      }
+      .card {
+        margin: 20px;
+        transition: transform 0.2s;
+      }
+      .card:hover {
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <a class="navbar-brand" href="/admin_dashboard">Dashboard</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/admin_statistics">Statistics</a>
+          </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="/admin_search">Search</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="/admin_influencers">Influencers</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="/admin_sponsors">Sponsors</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="/admin_campaigns">Campaigns</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="/admin_adrequests">Ad Requests</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="/logout">Log Out</a>
+              </li>
+          </ul>
+      </div>
+  </nav>
+  <div id="app" class="container">
+    <!-- Ad Request Table -->
+    <div v-if="adRequests.length">
+      <h3>Ad Requests</h3>
+      <b-table :items="adRequests" :fields="fields" striped hover>
+        <template #cell(actions)="row">
+         
+          <b-button variant="warning" @click="flagAdRequest(row.item)">Flag</b-button>
+          <b-button variant="warning" @click="unflagAdRequest(row.item)">Unflag</b-button>
+        </template>
+      </b-table>
+    </div>
+
+ 
+
+    
+  </div>
+
+  <script>
+   Vue.prototype.$axios = axios;
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          modalTitle: '',
+          modalMessage: '',
+          adRequests: [],
+          fields: [
+          { key: 'ad_request_id', label: 'Ad Request ID' },
+            { key: 'influencer_name', label: 'Influencer' },
+            { key: 'campaign_name', label: 'Campaign' },
+            { key: 'messages', label: 'Messages' },
+            { key: 'requirements', label: 'Requirements' },
+            { key: 'payment_amount', label: 'Payment' },
+            { key: 'status', label: 'Status' },
+            { key: 'flagged', label: 'Flag Status' },
+            { key: 'flag_reason', label: 'Flag Reason' },
+            { key: 'actions', label: 'Actions' }
+          ]
+        };
+      },
+      methods: {
+        // Reset the modal form
+        resetForm() {
+          this.modalTitle = '';
+          this.modalMessage = '';
+        },
+  
+        // Fetch ad requests data
+        async fetchAdRequests() {
+          try {
+            const response = await axios.get('/api/admin_adrequests');
+            this.adRequests = response.data.results;
+          } catch (error) {
+            console.error('Error fetching ad requests', error);
+          }
+        },
+  
+        // View and display ad request details in a modal
+        viewAdRequest(adRequest) {
+          this.modalTitle = 'Ad Request Details';
+          this.modalMessage = adRequest;
+          this.$bvModal.show('viewAdRequestModal');
+        },
+        unflagAdRequest(adRequest) {
+    // Make API call to unflag the ad request
+    axios.post('/api/flag_adrequest', {
+      ad_request_id: adRequest.ad_request_id,
+      flag_action: 'unflag' 
+    })
+    .then(response => {
+      if (response.data.flag_status === 'unflagged') { 
+                adRequest.flag_status = 'Valid';
+                alert('Ad request has been unflagged!');
+
+                window.location.reload();
+      console.log('Ad request unflagged:', response);
+      }
+    })
+    .catch(error => {
+     
+      console.error('Error unflagging ad request:', error);
+    });
+  }, 
+    flagAdRequest(adRequest) {  
+          const reason = prompt("Please provide a reason for flagging this ad request:");
+          if (reason) {
+            this.$axios.post('/api/flag_adrequest', {
+              ad_request_id: adRequest.ad_request_id,
+              flag_action: 'flag',  // Flag action is a string indicating this is a flag action
+              reason: reason  // Include the reason for flagging
+            })
+            .then(response => {
+                if (response.data.flag_status === 'Flagged') {
+                // Update the ad request status on the UI
+                adRequest.flag_status = 'Flagged';
+                alert('Ad request has been flagged!');
+                window.location.reload();
+              }
+            })
+            .catch(error => {
+              // Handle errors
+              alert('Error flagging ad request: ' + error.response.data.error);
+            });
+          }
+        }
+      },
+  
+      // Fetch the ad requests when the component is created
+      created() {
+        this.fetchAdRequests();
+      }
+    });
+  </script>
+  
+</body>
+</html>

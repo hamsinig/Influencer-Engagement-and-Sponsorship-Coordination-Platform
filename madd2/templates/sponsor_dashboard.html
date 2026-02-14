@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sponsor Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap">
+    <style>
+        body {
+            font-family: 'Noto Serif', serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #343a40;
+        }
+        .navbar-brand, .nav-link {
+            color: #ffffff !important;
+        }
+        .content {
+            padding: 20px;
+        }
+        .card {
+            width: 300px;
+            height: 300px;
+            max-width: 400px;
+            margin: 10;
+        }
+        .card-title {
+            color: #343a40;
+        }
+        .card-container {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+        }
+        .card-body .btn-custom {
+            margin-top: 50px;
+        }
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in-up.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .welcome-text {
+            animation: fadeIn 1s ease-out;
+            margin-left: 600px;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div v-if="showAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> Logout successful.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <a class="navbar-brand" href="#">Sponsor Dashboard</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sponsor_dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sponsor_search">Search</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sponsor_adrequests" @click.prevent="goToAdRequests">Ad Requests</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sponsor_campaigns" @click.prevent="goToCampaigns">Campaigns</a>
+                    </li>
+                    
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="content">
+            <h1 class="mt-4 welcome-text">Welcome, {{ sponsor.name }}</h1>
+            <div class="card-container mt-3">
+                <div class="card fade-in-up">
+                    <div class="card-header">
+                        Campaigns
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Manage your campaigns</h5>
+                        <p class="card-text">View and manage all your ad campaigns.</p>
+                        <a href="#" class="btn btn-primary btn-custom" @click.prevent="goToCampaigns">Go to Campaigns</a>
+                    </div>
+                </div>
+                <div class="card fade-in-up">
+                    <div class="card-header">
+                        Export Campaigns
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Export your campaigns as CSV</h5>
+                        <p class="card-text">Download a CSV file containing all your campaign details.</p>
+                        <button class="btn btn-primary btn-custom" @click.prevent="exportCampaigns">Export Campaigns</button>
+                    </div>
+                </div>
+                
+                <div class="card fade-in-up">
+                    <div class="card-header">
+                        Influencers
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Manage your adrequests</h5>
+                        <p class="card-text">View and manage your adrequests.</p>
+                        <a href="#" class="btn btn-primary btn-custom" @click.prevent="goToAdRequests">Go to Adrequests</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.4.31/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+       const { createApp, ref, onMounted } = Vue;
+const axios = window.axios;
+
+createApp({
+    setup() {
+        const campaigns = ref([]);
+        const sponsor = ref([]);
+        const showAlert = ref(false);
+
+        const fetchCampaignsData = async () => {
+            try {
+                const response = await axios.get('/api/campaigns');
+                campaigns.value = response.data;
+            } catch (error) {
+                console.error('Error fetching campaigns data:', error);
+            }
+        };
+
+        const fetchSponsorData = async () => {
+            try {
+                const response = await axios.get('/api/sponsor');
+                sponsor.value = response.data;
+            } catch (error) {
+                console.error('Error fetching sponsor data:', error);
+            }
+        };
+
+        const logout = async () => {
+            try {
+                await axios.get('/logout');
+                showAlert.value = true;
+                setTimeout(() => {
+                    showAlert.value = false;
+                    window.location.href = '/login';
+                }, 2000);
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
+        };
+
+        const goToCampaigns = () => {
+            window.location.href = '/sponsor_campaigns';
+        };
+
+        const goToAdRequests = () => {
+            window.location.href = '/sponsor_adrequests';
+        };
+
+        const exportCampaigns = async () => {
+    try {
+        const response = await axios.post('/export_campaigns', {
+            sponsor_id: sponsor.value.sponsor_id
+        });
+        console.log('Response:', response);
+	alert("Exported campaigns!!");
+	
+			window.location.href = `/download-file?sponsor_id=${sponsor.value.sponsor_id}`;
+    } catch (error) {
+        console.error('Error exporting campaigns:', error.message);  // Logs error message
+        if (error.response) {
+            console.error('Response data:', error.response.data);  // Logs response data from server
+            console.error('Response status:', error.response.status);  // Logs response status
+            console.error('Response headers:', error.response.headers);  // Logs response headers
+        } else if (error.request) {
+            console.error('Request made but no response:', error.request);  // Logs the request made if no response was received
+        } else {
+            console.error('Error setting up the request:', error.message);  // Logs any error in setting up the request
+        }
+    }
+};
+
+
+
+        onMounted(() => {
+            fetchCampaignsData();
+            fetchSponsorData();
+            document.querySelectorAll('.fade-in-up').forEach(el => {
+                setTimeout(() => {
+                    el.classList.add('show');
+                }, 300);
+            });
+        });
+
+        return { campaigns, sponsor, showAlert, logout, goToCampaigns, goToAdRequests, exportCampaigns };
+    }
+}).mount('#app');
+
+    </script>
+</body>
+</html>
+
+
+
+

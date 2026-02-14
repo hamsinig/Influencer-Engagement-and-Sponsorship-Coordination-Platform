@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Campaigns</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap">
+  <style>
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .fade-in.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .navbar {
+      background-color: #343a40;
+      animation: fadeIn 1s ease-out;
+    }
+    .navbar-brand, .nav-link {
+      color: #ffffff !important;
+    }
+    body {
+      font-family: 'Noto Serif', serif;
+      background-color: #f8f9fa;
+    }
+    .dashboard-container {
+      max-width: 1300px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      opacity: 0; /* Initial state for fade-in */
+      transform: translateY(20px); /* Initial state for fade-in */
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out; /* Smooth transition */
+    }
+    .card {
+      margin: 20px;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="/admin_dashboard">Dashboard</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/admin_statistics">Statistics</a>
+        </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin_search">Search</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin_influencers">Influencers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin_sponsors">Sponsors</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin_campaigns">Campaigns</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin_adrequests">Ad Requests</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Log Out</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+  <div id="app" class="dashboard-container fade-in">
+    <h1>All Campaigns</h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Budget</th>
+          <th>Visibility</th>
+          <th>Goals</th>
+          <th>Sponsor Name</th>
+          <th>Sponsor Industry</th>
+          <th>Sponsor Budget</th>
+          <th>Flag Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="campaign in campaigns" :key="campaign.campaign_id">
+          <td>{{ campaign.campaign_id }}</td>
+          <td>{{ campaign.name }}</td>
+          <td>{{ campaign.description }}</td>
+          <td>{{ campaign.start_date }}</td>
+          <td>{{ campaign.end_date }}</td>
+          <td>${{ campaign.budget }}</td>
+          <td>{{ campaign.visibility }}</td>
+          <td>{{ campaign.goals }}</td>
+          <td>{{ campaign.sponsor_name }}</td>
+          <td>{{ campaign.sponsor_industry }}</td>
+          <td>${{ campaign.sponsor_budget }}</td>
+          <td>{{ campaign.flag }}</td>
+          <td>
+            <button @click="toggleFlag(campaign)" class="btn btn-warning">
+              {{ campaign.flag === 'Flagged' ? 'Unflag' : 'Flag' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          campaigns: []  // Array to hold campaign data fetched from the API
+        };
+      },
+      created() {
+        this.fetchCampaigns();  // Fetch campaigns when the component is created
+      },
+      methods: {
+        // Fetch campaigns from the backend API
+        async fetchCampaigns() {
+          try {
+            const response = await fetch('/api/admin_campaigns');
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.error('Error response:', errorText);
+              throw new Error(`Network response was not ok: ${response.status}`);
+            }
+            const data = await response.json();
+            this.campaigns = data;
+            this.$nextTick(() => {
+              document.querySelector('.dashboard-container').classList.add('show');
+            });
+          } catch (error) {
+            console.error('Error fetching campaigns:', error);
+          }
+        },
+        // Toggle the flag status of a campaign
+        async toggleFlag(campaign) {
+          let action = '';
+          let reason = '';
+  
+          if (campaign.flag === 'Flagged') {
+            // Unflagging
+            action = 'unflag';
+            const confirmUnflag = confirm('Are you sure you want to unflag this campaign?');
+            if (!confirmUnflag) return; // Exit if unflagging is not confirmed
+          } else {
+            // Flagging
+            action = 'flag';
+            reason = prompt('Please enter a reason for flagging this campaign:');
+            if (!reason) {
+              alert('Reason is required to flag a campaign.');
+              return;
+            }
+          }
+  
+          try {
+            const response = await fetch('/api/admin_flag', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                campaign_id: campaign.campaign_id,
+                action: action,
+                reason: reason  // Empty for unflagging
+              })
+            });
+  
+            if (!response.ok) {
+              const errorText = await response.text();
+              throw new Error(`Network response was not ok: ${errorText}`);
+            }
+  
+            const result = await response.json();
+            if (result.success) {
+              this.fetchCampaigns(); // Refresh campaigns list
+            } else {
+              alert(result.error);
+            }
+          } catch (error) {
+            console.error('Error toggling flag:', error);
+          }
+        }
+      }
+    });
+  </script>
+  
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+
+
+
